@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.newsrec.manage.mapper.NewsCategoriesMapper">
+
+    <resultMap type="NewsCategories" id="NewsCategoriesResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="categoryIcon"    column="category_icon"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectNewsCategoriesVo">
+        select category_id, category_name, category_icon, create_time, update_time from tb_news_categories
+    </sql>
+
+    <select id="selectNewsCategoriesList" parameterType="NewsCategories" resultMap="NewsCategoriesResult">
+        <include refid="selectNewsCategoriesVo"/>
+        <where>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+        </where>
+    </select>
+
+    <select id="selectNewsCategoriesByCategoryId" parameterType="Long" resultMap="NewsCategoriesResult">
+        <include refid="selectNewsCategoriesVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <!-- 新闻分类的VO展示   -->
+    <select id="selectNewsCategoriesVOList" resultType="com.newsrec.manage.domain.vo.NewsCategoriesVo">
+        SELECT c.category_id, c.category_name, c.category_icon, c.create_time,c.update_time,c.description,IFNULL(n.news_count, 0) AS news_count
+        FROM tb_news_categories c
+        LEFT JOIN (SELECT category_id, COUNT(*) AS news_count FROM tb_news  WHERE status = 1 GROUP BY category_id) n ON c.category_id = n.category_id
+        <where>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+        </where>
+    </select>
+
+    <insert id="insertNewsCategories" parameterType="NewsCategories" useGeneratedKeys="true" keyProperty="categoryId">
+        insert into tb_news_categories
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="categoryIcon != null">category_icon,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="categoryIcon != null">#{categoryIcon},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateNewsCategories" parameterType="NewsCategories">
+        update tb_news_categories
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="categoryIcon != null">category_icon = #{categoryIcon},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteNewsCategoriesByCategoryId" parameterType="Long">
+        delete from tb_news_categories where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteNewsCategoriesByCategoryIds" parameterType="String">
+        delete from tb_news_categories where category_id in
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>
