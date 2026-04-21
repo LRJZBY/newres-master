@@ -1,2 +1,0 @@
-00:04:01.894 [restartedMain] ERROR o.a.c.c.AprLifecycleListener - [log,173] - An incompatible version [1.2.7] of the Apache Tomcat Native library is installed, while Tomcat requires version [1.2.14]
-00:08:13.525 [restartedMain] ERROR o.a.c.c.AprLifecycleListener - [log,173] - An incompatible version [1.2.7] of the Apache Tomcat Native library is installed, while Tomcat requires version [1.2.14]
